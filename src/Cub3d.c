@@ -23,8 +23,6 @@ void  read_info(t_map *map)
     map->map2D = ft_split(content, NEW_LINE);
     if(!map->map2D)
         ft_error_msg(INVALID_MAP);
-    // int i = -1;
-    // while(map->map2D[++i]) printf("%s\n", map->map2D[i]);
 }
 
 void open_and_read_file(char *str, t_map *map)
@@ -107,11 +105,71 @@ void    parse_textures(t_map *map)
             if (map->texture->east == NULL)
                 map->texture->east = ft_strdup(path_start);
         }
+        else break;
         start++;
     }
     if(start != 4) printf("invalid content"), exit(1);
 }
+int get_max_line_length(char **map)
+{
+    int i = 0;
+   size_t max = ft_strlen(map[i]);
+    
+    while(map[i])
+    {
+      if(ft_strlen(map[i]) > max)
+          max = ft_strlen(map[i]);
+      i++;
+    }
+    return max;
+}
+int ft_errlen(char **map)
+{
+  int i = 0;
+    while(map[i])
+            i++;
+  return i;
+}
+void pad_line_with_spaces(t_texture *texture, size_t max_lenght, char **map)
+{
+    texture->map = malloc(ft_errlen(map) * sizeof(char*));
+    int i = 0;
+    size_t len = 0, j = 0;
+    while(map[i])
+    {
+      j = 0;
+        if(max_lenght > ft_strlen(map[i]))
+          len = ft_strlen(map[i]) + (max_lenght - ft_strlen(map[i]));
+        else len = ft_strlen(map[i]);
+       texture->map[i] = malloc(sizeof(char) * len);
+        while(j < len)
+        {
+            if(map[i][j])
+                texture->map[i][j] = map[i][j];
+            else
+                texture->map[i][j] = ' ';
+          j++;
+        }
+        texture->map[i][j] = '\0';
+        i++;
+    }
+        texture->map[i] = NULL;
+}
+int normalize_map(t_texture *texture, char **map)
+{
+    size_t max_lenght;
 
+    if(!map) 
+        return(0);
+    max_lenght = get_max_line_length(map);
+    pad_line_with_spaces(texture, max_lenght, map);
+  return 1;
+}
+void  check_validite_map(t_map *map)
+{
+    if(!normalize_map(map->texture, map->map2D))
+        ft_error_msg("error here\n");
+}
 int main(int ac, char **av)
 {
     t_map parse;
@@ -121,10 +179,10 @@ int main(int ac, char **av)
         ft_error_msg(INVALID_ARGS);
     check_and_read_error(&parse, av[1]);
     parse_textures(&parse);
-    // int i = 0;
-    // while(parse.map2D[i])
-    // {
-    //     printf("%s\n", parse.map2D[i]);
-    //     i++;
-    // }
+    check_validite_map(&parse);
+    int i = 0;
+    while(parse.texture->map[i])
+    {
+        printf("len  here   :  %ld\n", ft_strlen(parse.texture->map[i++]));
+    }
 }
