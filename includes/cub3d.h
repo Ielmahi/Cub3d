@@ -35,6 +35,7 @@ typedef struct s_texture
     char *west;
     char *east;
     char **map;
+    int start;
 }   t_texture;
 
 typedef struct s_map

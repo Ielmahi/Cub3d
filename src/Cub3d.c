@@ -79,8 +79,6 @@ void    parse_textures(t_map *map)
     ft_memset(map->texture, 0, sizeof(t_texture));
 
     char **colors;
-
-    int start = 0;
     while(map->map2D[++i])
     {
         check_erros(map->map2D[i]);
@@ -129,9 +127,10 @@ void    parse_textures(t_map *map)
             map->ceilling_color.b = ft_atoi(colors[2]);
         }
         else break;
-        start++;
+        map->texture->start++;
     }
-    if(start != 6) printf("invalid content"), exit(1);
+    if(map->texture->start != 6) printf("invalid content"), exit(1);
+    
 }
 int get_max_line_length(char **map)
 {
@@ -190,7 +189,7 @@ int normalize_map(t_texture *texture, char **map)
 }
 void  check_validite_map(t_map *map)
 {
-    if(!normalize_map(map->texture, map->map2D))
+    if(!normalize_map(map->texture, map->map2D+=map->texture->start))
         ft_error_msg("error here\n");
 }
 int main(int ac, char **av)
@@ -202,10 +201,11 @@ int main(int ac, char **av)
         ft_error_msg(INVALID_ARGS);
     check_and_read_error(&parse, av[1]);
     parse_textures(&parse);
-    // int i = 0;
-    // while(parse.map2D[i])
-    // {
-    //     printf("%s\n", parse.map2D[i]);
-    //     i++;
-    // }
+    check_validite_map(&parse);
+     int i = 0;
+     while(parse.texture->map[i])
+     {
+         printf("%ld\n", ft_strlen(parse.texture->map[i]));
+         i++;
+     }
 }
