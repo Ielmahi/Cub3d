@@ -7,7 +7,6 @@
 #include <fcntl.h>
 
 
-
 #define INVALID_ARGS "\033[0;31mError\nInvalid Arguments\n\033[0m"
 #define INVALID_FILE "\033[0;31mError\nInvalid File\n\033[0m"
 #define OPEN_FILE_ERROR "\033[0;31mError\nCannot Open FILE\n\033[0m"
@@ -23,15 +22,26 @@
 
 typedef struct s_color
 {
-    int floor_color[3];
-    int cell_color[3];
-}t_color;
+    int r;
+    int g;
+    int b;
+}   t_color;
+
+typedef struct s_texture
+{
+    char *north;
+    char *south;
+    char *west;
+    char *east;
+    char **map;
+}   t_texture;
 
 typedef struct s_map
 {
     char **map2D;
     int fd;
     int read_bytes;
-    t_color colors; 
-} t_map;
+    t_color *colors;
+    t_texture *texture;
+}   t_map;
 
