@@ -17,7 +17,8 @@
 #define SLASH '/'
 #define TRUE 1
 #define FALSE 0
-
+#define SPACE ' '
+#define COMMA ','
 
 
 typedef struct s_color
@@ -41,7 +42,8 @@ typedef struct s_map
     char **map2D;
     int fd;
     int read_bytes;
-    t_color *colors;
+    t_color floor_color;
+    t_color ceilling_color;
     t_texture *texture;
 }   t_map;
 
