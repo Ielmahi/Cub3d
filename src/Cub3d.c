@@ -1,5 +1,36 @@
 #include "../includes/cub3d.h"
 
+// ------------------------//
+
+#define ERROR_INVALID_MAP "\033[1;31mError\n:\033[0m Invalid map structure.\n"
+#define ERROR_INVALID_CHARACTERS "\033[1;31mError:\n\033[0m Invalid characters or player count in map.\n"
+#define ERROR_INVALID_BORDER_LINES "\033[1;31mError:\n\033[0m Map border lines are invalid.\n"
+#define ERROR_INVALID_BORDER_COLUMNS "\033[1;31mError:\n\033[0m Map border columns are invalid.\n"
+#define ERROR_FLOOD_FILL_FAIL "\033[1;31mError:\n\033[0m Flood fill failed — map not enclosed properly.\n"
+
+// -------------------------//
+
+#define ERR_EMPTY_PATH "Error: Empty path for texture\n"
+#define ERR_DUP_NORTH "Error: Duplicate North texture path\n"
+#define ERR_DUP_SOUTH "Error: Duplicate South texture path\n"
+#define ERR_DUP_EAST "Error: Duplicate East texture path\n"
+#define ERR_DUP_EAST "Error: Duplicate West texture path\n"
+#define ERR_DUP_CEILING "Error: Duplicate Ceilling color\n"
+#define ERR_DUP_FLOOR "Error: Duplicate Floor color\n"
+#define ERR_EXTRA_CHAR "Error: Extra characters after color definition\n"
+#define ERR_OUT_OF_RANGE "Error: RGB color values out of range [0-255]\n"
+#define ERR_INVALID_PATH "invalid path to textures\n"
+
+// ---------------------------//
+
+
+#define WALL '1'
+#define EMPTY '0'
+#define PLAYER_N 'N'
+#define PLAYER_S 'S'
+#define PLAYER_W 'W'
+#define PLAYER_E 'E'
+//-----------------------//
 void ft_error_msg(char *msg)
 {
     write(STDERR_FILENO, msg, ft_strlen(msg));
@@ -68,7 +99,7 @@ char    *SkipChar(char *str, char skip)
 void    check_erros(char *str)
 {
     if (ft_strlen(str) < 3)
-        ft_error_msg("invalid path to textures\n");
+        ft_error_msg(ERR_INVALID_PATH);
 }
 
 int     lengh_of_2d_array(char **arr)
@@ -83,9 +114,9 @@ int     lengh_of_2d_array(char **arr)
 void    check_colors(t_map *map)
 {
     if (map->f_color.r<0 || map->f_color.r>255 || map->f_color.g<0||map->f_color.r>255|| map->f_color.b<0 || map->f_color.b>255)
-        ft_error_msg("Error: RGB color values out of range [0-255]\n");
+        ft_error_msg(ERR_OUT_OF_RANGE);
     else if (map->c_color.r<0 || map->c_color.r>255 || map->c_color.g<0||map->c_color.r>255|| map->c_color.b<0 || map->c_color.b>255)
-        ft_error_msg("Error: RGB color values out of range [0-255]\n");
+        ft_error_msg(ERR_OUT_OF_RANGE);
 }
 
 
@@ -108,7 +139,7 @@ int parse_color(char ***path_start, char **comma_pos, size_t *len, int is_last)
         {
             **path_start = **path_start + *len;
             if (***path_start != '\0')
-                ft_error_msg("Error: Extra characters after color definition\n");
+                ft_error_msg(ERR_EXTRA_CHAR);
         }
         else
             **path_start = SkipChar(**path_start + *len, ',');
@@ -123,7 +154,7 @@ void    parse_ceiling_color(t_map *map, char **path_start, int i)
     size_t len;
 
     if (map->c_color.is_set_c > 2)
-        ft_error_msg("Error: Duplicate Ceilling color\n");
+        ft_error_msg(ERR_DUP_CEILING);
     *path_start = SkipChar(map->map2D[i]+1, ' ');
     map->c_color.r = parse_color(&path_start, &comma_pos, &len, 0);
     map->c_color.g = parse_color(&path_start, &comma_pos, &len, 0);
@@ -138,7 +169,7 @@ void    parse_floor_color(t_map *map, char **path_start, int i)
     size_t len;
 
     if (map->c_color.is_set_f > 2)
-        ft_error_msg("Error: Duplicate Floor color\n");
+        ft_error_msg(ERR_DUP_FLOOR);
     *path_start = SkipChar(map->map2D[i]+1, ' ');
     map->f_color.r = parse_color(&path_start, &comma_pos, &len, 0);
     map->f_color.g = parse_color(&path_start, &comma_pos, &len, 0);
@@ -152,7 +183,7 @@ void    we(t_map *map, char *path_start)
     if (map->texture->west == NULL)
             map->texture->west = ft_strdup(path_start);
         else
-            ft_error_msg("Error: Duplicate West texture path\n");
+            ft_error_msg(ERR_DUP_EAST);
 }
 
 void    ea(t_map *map, char *path_start)
@@ -160,7 +191,7 @@ void    ea(t_map *map, char *path_start)
     if (map->texture->east == NULL)
         map->texture->east = ft_strdup(path_start);
     else
-        ft_error_msg("Error: Duplicate East texture path\n");
+        ft_error_msg(ERR_DUP_EAST);
 }
 
 void    so(t_map *map, char *path_start)
@@ -168,7 +199,7 @@ void    so(t_map *map, char *path_start)
     if (map->texture->south == NULL)
             map->texture->south = ft_strdup(path_start);
     else
-        ft_error_msg("Error: Duplicate South texture path\n");
+        ft_error_msg(ERR_DUP_SOUTH);
 }
 
 void    no(t_map *map, char *path_start)
@@ -176,7 +207,7 @@ void    no(t_map *map, char *path_start)
     if (map->texture->north == NULL)
         map->texture->north = ft_strdup(path_start);
     else
-        ft_error_msg("Error: Duplicate North texture path\n");
+        ft_error_msg(ERR_DUP_NORTH);
 }
 
 bool    check(t_map *map, int i, char *path_start)
@@ -203,15 +234,14 @@ void    parse_textures(t_map *map)
 {
     int i = -1;
     char *path_start;
+
     map->texture = malloc(sizeof(t_texture));
     ft_memset(map->texture, 0, sizeof(t_texture));
-
-    //char **colors;
     while(map->map2D[++i])
     {
         check_erros(map->map2D[i]);
         path_start = SkipChar(map->map2D[i]+2, SPACE);
-            if(!*path_start) ft_error_msg("Error: Empty path for texture\n");
+            if(!*path_start) ft_error_msg(ERR_EMPTY_PATH);
         if (!check(map, i, path_start))
             break;
         map->texture->start++;
@@ -222,22 +252,22 @@ void    parse_textures(t_map *map)
 int get_max_line_length(char **map)
 {
     int i = 0;
-   size_t max = ft_strlen(map[i]);
+    size_t max = ft_strlen(map[i]);
     
     while(map[i])
     {
-      if(ft_strlen(map[i]) > max)
-          max = ft_strlen(map[i]);
-      i++;
+        if(ft_strlen(map[i]) > max)
+            max = ft_strlen(map[i]);
+        i++;
     }
     return max;
 }
 int ft_errlen(char **map)
 {
-  int i = 0;
+    int i = 0;
     while(map[i])
-            i++;
-  return i;
+        i++;
+    return i;
 }
 void pad_line_with_spaces(t_texture *texture, size_t max_lenght, char **map)
 {
@@ -269,16 +299,121 @@ int normalize_map(t_texture *texture, char **map)
     size_t max_lenght;
 
     if(!*map) 
-        ft_error_msg("Here error msg\n");
+        return(0);
     max_lenght = get_max_line_length(map);
     pad_line_with_spaces(texture, max_lenght, map);
   return 1;
 }
+int is_check(char c)
+{
+    return (c == ' ' || c == 'N' || c == '1' || c == '0' || c  == 'S' || c=='W' || c == 'E');
+}
+int is_player(char c)
+{
+  return (c =='E' || c == 'N' || c == 'W' || c == 'S');
+}
+int validate_charactere_and_palyer(char **map)
+{
+    int i =0, j;
+    int player =0;
+    while(map[i])
+    {
+        j = 0;
+        while(map[i][j])
+        {
+          if(!is_check(map[i][j]))
+              return(FALSE);
+          if(is_player(map[i][j]))
+              player++;
+        j++;
+        }
+    i++;
+    }
+    if(player != 1) return(FALSE);
+  return(TRUE);
+}
+int is_check_lines(char *ptr)
+{
+  while(*ptr && (*ptr == SPACE || *ptr == WALL))
+        ptr++;
+  return(*ptr);
+}
+int validate_border_lines(char **map)
+{
+    int i = 0;
+    while(map[i])
+    {
+        if(i == 0 || i == (ft_errlen(map) - 1))
+            if(is_check_lines(map[i]))
+                return(FALSE);
+      i++;
+    }
+  return(TRUE);
+}
+int validate_border_columns(char **map)
+{
+    int i = 0, j = ft_strlen(map[i]) -1;
+  while(map[i])
+  {
+    if((map[i][0] != SPACE && map[i][0] != WALL) || (map[i][j] != SPACE && map[i][j] != WALL))
+        return FALSE;
+    i++;
+  }
+  return TRUE;
+}
+void get_coordinate(char **map, t_texture *texture)
+{
+    int i = 0, j;
+    while(map[i])
+    {
+        j = 0;
+      while (map[i][j]) 
+      {
+        if(is_player(map[i][j]))
+        {
+          texture->x_player = j;
+          texture->y_player = i;
+          texture->position_player = map[i][j];
+        }
+        j++;
+      }
+    i++;
+    }
+}
+int flood_fill(char **map, int x, int y, t_texture *texture)
+{
+    if (x < 0 || y < 0 || !map[y] || !map[y][x])
+        return FALSE;
+    if (map[y][x] == '1' || map[y][x] == 'x')
+        return TRUE;
+
+    if (map[y][x] == ' ')
+        return FALSE;
+
+    map[y][x] = 'x';
+
+    int valid = flood_fill(map, x - 1, y, texture) &&
+                flood_fill(map, x + 1, y, texture) &&
+                flood_fill(map, x, y - 1, texture) &&
+                flood_fill(map, x, y + 1, texture);
+    return valid;
+}
 void  check_validite_map(t_map *map)
 {
-    
-    if(!normalize_map(map->texture, map->map2D+=map->texture->start))
-        ft_error_msg("error here\n");
+      char **map_start = map->map2D + map->texture->start;
+      get_coordinate(map_start, map->texture);
+      int x = map->texture->x_player;
+      int y = map->texture->y_player;
+    if(!normalize_map(map->texture, map_start))
+        ft_error_msg("error here a\n");
+    else if(!validate_charactere_and_palyer(map->texture->map))
+        ft_error_msg("Error here b\n");
+    else if(!validate_border_lines(map->texture->map))
+          ft_error_msg("error here c\n");
+    else if (!validate_border_columns(map->texture->map))
+          ft_error_msg("error here\n");
+     if(!flood_fill(map->texture->map , x, y, map->texture))
+          ft_error_msg("Error here\n");
 }
 int main(int ac, char **av)
 {
@@ -290,4 +425,7 @@ int main(int ac, char **av)
     check_and_read_error(&parse, av[1]);
     parse_textures(&parse);
     check_validite_map(&parse);
+  int i = 0;
+  while(parse.texture->map[i])
+      printf("%s\n", parse.texture->map[i++]);
 }

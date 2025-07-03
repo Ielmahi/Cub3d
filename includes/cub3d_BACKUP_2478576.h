@@ -5,7 +5,10 @@
 #include <stdlib.h>
 #include "../Libft/libft.h"
 #include <fcntl.h>
+<<<<<<< HEAD
 #include <stdbool.h>
+
+=======
 
 #define ERROR_INVALID_MAP "\033[1;31mError\n:\033[0m Invalid map structure.\n"
 #define ERROR_INVALID_CHARACTERS "\033[1;31mError:\n\033[0m Invalid characters or player count in map.\n"
@@ -18,6 +21,7 @@
 #define PLAYER_S 'S'
 #define PLAYER_W 'W'
 #define PLAYER_E 'E'
+>>>>>>> origin/parse_map_and_using_flood_fill
 #define INVALID_ARGS "\033[0;31mError\nInvalid Arguments\n\033[0m"
 #define INVALID_FILE "\033[0;31mError\nInvalid File\n\033[0m"
 #define OPEN_FILE_ERROR "\033[0;31mError\nCannot Open FILE\n\033[0m"
