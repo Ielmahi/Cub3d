@@ -71,6 +71,23 @@ void    check_erros(char *str)
         ft_error_msg("invalid path to textures\n");
 }
 
+int     lengh_of_2d_array(char **arr)
+{
+    int i = 0;
+    while(arr[i])
+        i++;
+    return i;
+}
+
+
+void    check_colors(t_map *map)
+{
+    if (map->floor_color.r<0 || map->floor_color.r>255 || map->floor_color.g<0||map->floor_color.r>255|| map->floor_color.b<0 || map->floor_color.b>255)
+        ft_error_msg("Error: RGB color values out of range [0-255]\n");
+    else if (map->ceilling_color.r<0 || map->ceilling_color.r>255 || map->ceilling_color.g<0||map->ceilling_color.r>255|| map->ceilling_color.b<0 || map->ceilling_color.b>255)
+        ft_error_msg("Error: RGB color values out of range [0-255]\n");
+}
+
 void    parse_textures(t_map *map)
 {
     int i = -1;
@@ -115,23 +132,29 @@ void    parse_textures(t_map *map)
         else if (!ft_strncmp(map->map2D[i], "F ", 2))
         {
             colors = ft_split(map->map2D[i]+2, ',');
+            if (lengh_of_2d_array(colors) != 3)
+                ft_error_msg("Error: floor colors is not correct\n");
             map->floor_color.r = ft_atoi(colors[0]);
             map->floor_color.g = ft_atoi(colors[1]);
             map->floor_color.b = ft_atoi(colors[2]);
+            check_colors(map);
         }
         else if (!ft_strncmp(map->map2D[i], "C ", 2))
         {
             colors = ft_split(map->map2D[i]+2, ',');
+            if (lengh_of_2d_array(colors) != 3)
+                ft_error_msg("Error: ceilling colors is not correct\n");
             map->ceilling_color.r = ft_atoi(colors[0]);
             map->ceilling_color.g = ft_atoi(colors[1]);
             map->ceilling_color.b = ft_atoi(colors[2]);
+            check_colors(map);
         }
         else break;
         map->texture->start++;
     }
     if(map->texture->start != 6) printf("invalid content"), exit(1);
-    
 }
+
 int get_max_line_length(char **map)
 {
     int i = 0;
