@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "../Libft/libft.h"
 #include <fcntl.h>
-
+#include <stdbool.h>
 
 #define INVALID_ARGS "\033[0;31mError\nInvalid Arguments\n\033[0m"
 #define INVALID_FILE "\033[0;31mError\nInvalid File\n\033[0m"
@@ -26,6 +26,8 @@ typedef struct s_color
     int r;
     int g;
     int b;
+    int is_set_f;
+    int is_set_c;
 }   t_color;
 
 typedef struct s_texture
@@ -43,8 +45,8 @@ typedef struct s_map
     char **map2D;
     int fd;
     int read_bytes;
-    t_color floor_color;
-    t_color ceilling_color;
+    t_color f_color;
+    t_color c_color;
     t_texture *texture;
 }   t_map;
 

@@ -82,11 +82,122 @@ int     lengh_of_2d_array(char **arr)
 
 void    check_colors(t_map *map)
 {
-    if (map->floor_color.r<0 || map->floor_color.r>255 || map->floor_color.g<0||map->floor_color.r>255|| map->floor_color.b<0 || map->floor_color.b>255)
+    if (map->f_color.r<0 || map->f_color.r>255 || map->f_color.g<0||map->f_color.r>255|| map->f_color.b<0 || map->f_color.b>255)
         ft_error_msg("Error: RGB color values out of range [0-255]\n");
-    else if (map->ceilling_color.r<0 || map->ceilling_color.r>255 || map->ceilling_color.g<0||map->ceilling_color.r>255|| map->ceilling_color.b<0 || map->ceilling_color.b>255)
+    else if (map->c_color.r<0 || map->c_color.r>255 || map->c_color.g<0||map->c_color.r>255|| map->c_color.b<0 || map->c_color.b>255)
         ft_error_msg("Error: RGB color values out of range [0-255]\n");
 }
+
+
+int parse_color(char ***path_start, char **comma_pos, size_t *len, int is_last)
+{
+    char *r_str;
+    
+    *comma_pos = ft_strchr(**path_start, ',');
+    if (*comma_pos == NULL)
+    {
+        *len = ft_strlen(**path_start);
+        r_str = ft_strndup(**path_start, *len);
+        **path_start = **path_start + *len;
+    }
+    else
+    {
+        *len = *comma_pos - **path_start;
+        r_str = ft_strndup(**path_start, *len);
+        if (is_last)
+        {
+            **path_start = **path_start + *len;
+            if (***path_start != '\0')
+                ft_error_msg("Error: Extra characters after color definition\n");
+        }
+        else
+            **path_start = SkipChar(**path_start + *len, ',');
+    }
+    return (ft_atoi(r_str));
+}
+
+
+void    parse_ceiling_color(t_map *map, char **path_start, int i)
+{
+    char *comma_pos;
+    size_t len;
+
+    if (map->c_color.is_set_c > 2)
+        ft_error_msg("Error: Duplicate Ceilling color\n");
+    *path_start = SkipChar(map->map2D[i]+1, ' ');
+    map->c_color.r = parse_color(&path_start, &comma_pos, &len, 0);
+    map->c_color.g = parse_color(&path_start, &comma_pos, &len, 0);
+    map->c_color.b = parse_color(&path_start, &comma_pos, &len, 1);
+    check_colors(map);
+    map->c_color.is_set_c += 1;
+}
+
+void    parse_floor_color(t_map *map, char **path_start, int i)
+{
+    char *comma_pos;
+    size_t len;
+
+    if (map->c_color.is_set_f > 2)
+        ft_error_msg("Error: Duplicate Floor color\n");
+    *path_start = SkipChar(map->map2D[i]+1, ' ');
+    map->f_color.r = parse_color(&path_start, &comma_pos, &len, 0);
+    map->f_color.g = parse_color(&path_start, &comma_pos, &len, 0);
+    map->f_color.b = parse_color(&path_start, &comma_pos, &len, 1);
+    check_colors(map);
+    map->f_color.is_set_c += 1;
+}
+
+void    we(t_map *map, char *path_start)
+{
+    if (map->texture->west == NULL)
+            map->texture->west = ft_strdup(path_start);
+        else
+            ft_error_msg("Error: Duplicate West texture path\n");
+}
+
+void    ea(t_map *map, char *path_start)
+{
+    if (map->texture->east == NULL)
+        map->texture->east = ft_strdup(path_start);
+    else
+        ft_error_msg("Error: Duplicate East texture path\n");
+}
+
+void    so(t_map *map, char *path_start)
+{
+    if (map->texture->south == NULL)
+            map->texture->south = ft_strdup(path_start);
+    else
+        ft_error_msg("Error: Duplicate South texture path\n");
+}
+
+void    no(t_map *map, char *path_start)
+{
+    if (map->texture->north == NULL)
+        map->texture->north = ft_strdup(path_start);
+    else
+        ft_error_msg("Error: Duplicate North texture path\n");
+}
+
+bool    check(t_map *map, int i, char *path_start)
+{
+    if (!ft_strncmp(map->map2D[i], "NO ", 3))
+        no(map, path_start);
+    else if (!ft_strncmp(map->map2D[i], "SO ", 3))
+        so(map, path_start);
+    else if (!ft_strncmp(map->map2D[i], "WE ", 3))
+        we(map, path_start);
+    else if (!ft_strncmp(map->map2D[i], "EA ", 3))
+        ea(map,path_start);
+    else if (!ft_strncmp(map->map2D[i], "F ", 2))
+        parse_floor_color(map, &path_start, i);
+    else if (!ft_strncmp(map->map2D[i], "C ", 2))
+        parse_ceiling_color(map, &path_start, i);
+    else
+        return false;
+    return true;
+}
+
 
 void    parse_textures(t_map *map)
 {
@@ -95,61 +206,14 @@ void    parse_textures(t_map *map)
     map->texture = malloc(sizeof(t_texture));
     ft_memset(map->texture, 0, sizeof(t_texture));
 
-    char **colors;
+    //char **colors;
     while(map->map2D[++i])
     {
         check_erros(map->map2D[i]);
         path_start = SkipChar(map->map2D[i]+2, SPACE);
             if(!*path_start) ft_error_msg("Error: Empty path for texture\n");
-        if (!ft_strncmp(map->map2D[i], "NO ", 3))
-        {     
-            if (map->texture->north == NULL)
-                map->texture->north = ft_strdup(path_start);
-            else
-                ft_error_msg("Error: Duplicate North texture path\n");
-        }
-        else if (!ft_strncmp(map->map2D[i], "SO ", 3))
-        {
-            if (map->texture->south == NULL)
-                map->texture->south = ft_strdup(path_start);
-            else
-                ft_error_msg("Error: Duplicate South texture path\n");
-        }
-        else if (!ft_strncmp(map->map2D[i], "WE ", 3))
-        {
-            if (map->texture->west == NULL)
-                map->texture->west = ft_strdup(path_start);
-            else
-                ft_error_msg("Error: Duplicate West texture path\n");
-        }
-        else if (!ft_strncmp(map->map2D[i], "EA ", 3))
-        {
-            if (map->texture->east == NULL)
-                map->texture->east = ft_strdup(path_start);
-            else
-                ft_error_msg("Error: Duplicate East texture path\n");
-        }
-        else if (!ft_strncmp(map->map2D[i], "F ", 2))
-        {
-            colors = ft_split(map->map2D[i]+2, ',');
-            if (lengh_of_2d_array(colors) != 3)
-                ft_error_msg("Error: floor colors is not correct\n");
-            map->floor_color.r = ft_atoi(colors[0]);
-            map->floor_color.g = ft_atoi(colors[1]);
-            map->floor_color.b = ft_atoi(colors[2]);
-            check_colors(map);
-        }
-        else if (!ft_strncmp(map->map2D[i], "C ", 2))
-        {
-            colors = ft_split(map->map2D[i]+2, ',');
-            if (lengh_of_2d_array(colors) != 3)
-                ft_error_msg("Error: ceilling colors is not correct\n");
-            map->ceilling_color.r = ft_atoi(colors[0]);
-            map->ceilling_color.g = ft_atoi(colors[1]);
-            map->ceilling_color.b = ft_atoi(colors[2]);
-            check_colors(map);
-        }
-        else break;
+        if (!check(map, i, path_start))
+            break;
         map->texture->start++;
     }
     if(map->texture->start != 6) printf("invalid content"), exit(1);
@@ -204,14 +268,15 @@ int normalize_map(t_texture *texture, char **map)
 {
     size_t max_lenght;
 
-    if(!map) 
-        return(0);
+    if(!*map) 
+        ft_error_msg("Here error msg\n");
     max_lenght = get_max_line_length(map);
     pad_line_with_spaces(texture, max_lenght, map);
   return 1;
 }
 void  check_validite_map(t_map *map)
 {
+    
     if(!normalize_map(map->texture, map->map2D+=map->texture->start))
         ft_error_msg("error here\n");
 }
@@ -225,10 +290,4 @@ int main(int ac, char **av)
     check_and_read_error(&parse, av[1]);
     parse_textures(&parse);
     check_validite_map(&parse);
-     int i = 0;
-     while(parse.texture->map[i])
-     {
-         printf("%ld\n", ft_strlen(parse.texture->map[i]));
-         i++;
-     }
 }
