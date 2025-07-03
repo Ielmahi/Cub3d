@@ -1,5 +1,18 @@
 #include "../includes/cub3d.h"
 
+// ------------------------//
+#define ERROR_INVALID_MAP "\033[1;31mError\n:\033[0m Invalid map structure.\n"
+#define ERROR_INVALID_CHARACTERS "\033[1;31mError:\n\033[0m Invalid characters or player count in map.\n"
+#define ERROR_INVALID_BORDER_LINES "\033[1;31mError:\n\033[0m Map border lines are invalid.\n"
+#define ERROR_INVALID_BORDER_COLUMNS "\033[1;31mError:\n\033[0m Map border columns are invalid.\n"
+#define ERROR_FLOOD_FILL_FAIL "\033[1;31mError:\n\033[0m Flood fill failed — map not enclosed properly.\n"
+#define WALL '1'
+#define EMPTY '0'
+#define PLAYER_N 'N'
+#define PLAYER_S 'S'
+#define PLAYER_W 'W'
+#define PLAYER_E 'E'
+//-----------------------//
 void ft_error_msg(char *msg)
 {
     write(STDERR_FILENO, msg, ft_strlen(msg));
@@ -152,7 +165,7 @@ void    parse_textures(t_map *map)
         else break;
         map->texture->start++;
     }
-    if(map->texture->start != 6) printf("invalid content"), exit(1);
+    if(map->texture->start != 7) printf("invalid content"), exit(1);
 }
 
 int get_max_line_length(char **map)
@@ -204,16 +217,120 @@ int normalize_map(t_texture *texture, char **map)
 {
     size_t max_lenght;
 
-    if(!map) 
+    if(!*map) 
         return(0);
     max_lenght = get_max_line_length(map);
     pad_line_with_spaces(texture, max_lenght, map);
   return 1;
 }
+int is_check(char c)
+{
+    return (c == ' ' || c == 'N' || c == '1' || c == '0' || c  == 'S' || c=='W' || c == 'E');
+}
+int is_player(char c)
+{
+  return (c =='E' || c == 'N' || c == 'W' || c == 'S');
+}
+int validate_charactere_and_palyer(char **map)
+{
+    int i =0, j;
+    int player =0;
+    while(map[i])
+    {
+        j = 0;
+        while(map[i][j])
+        {
+          if(!is_check(map[i][j]))
+              return(FALSE);
+          if(is_player(map[i][j]))
+              player++;
+        j++;
+        }
+    i++;
+    }
+    if(player != 1) return(FALSE);
+  return(TRUE);
+}
+int is_check_lines(char *ptr)
+{
+  while(*ptr && (*ptr == SPACE || *ptr == WALL))
+        ptr++;
+  return(*ptr);
+}
+int validate_border_lines(char **map)
+{
+    int i = 0;
+    while(map[i])
+    {
+        if(i == 0 || i == (ft_errlen(map) - 1))
+            if(is_check_lines(map[i]))
+                return(FALSE);
+      i++;
+    }
+  return(TRUE);
+}
+int validate_border_columns(char **map)
+{
+    int i = 0, j = ft_strlen(map[i]) -1;
+  while(map[i])
+  {
+    if((map[i][0] != SPACE && map[i][0] != WALL) || (map[i][j] != SPACE && map[i][j] != WALL))
+        return FALSE;
+    i++;
+  }
+  return TRUE;
+}
+void get_coordinate(char **map, t_texture *texture)
+{
+    int i = 0, j;
+    while(map[i])
+    {
+        j = 0;
+      while (map[i][j]) 
+      {
+        if(is_player(map[i][j]))
+        {
+          texture->x_player = j;
+          texture->y_player = i;
+          texture->position_player = map[i][j];
+        }
+        j++;
+      }
+    i++;
+    }
+}
+int flood_fill(char **map, int x, int y, t_texture *texture)
+{
+    if (x < 0 || y < 0 || !map[y] || !map[y][x])
+        return FALSE;
+    if (map[y][x] == '1' || map[y][x] == 'x')
+        return TRUE;
+    if (map[y][x] == ' ')
+        return FALSE;
+    map[y][x] = 'x';
+
+    int valid = flood_fill(map, x - 1, y, texture) &&
+                flood_fill(map, x + 1, y, texture) &&
+                flood_fill(map, x, y - 1, texture) &&
+                flood_fill(map, x, y + 1, texture);
+    return valid;
+}
 void  check_validite_map(t_map *map)
 {
-    if(!normalize_map(map->texture, map->map2D+=map->texture->start))
-        ft_error_msg("error here\n");
+      char **map_start = map->map2D + map->texture->start;
+      get_coordinate(map_start, map->texture);
+      int x = map->texture->x_player;
+      int y = map->texture->y_player;
+    if(!normalize_map(map->texture, map_start))
+        ft_error_msg("error here a\n");
+    else if(!validate_charactere_and_palyer(map->texture->map))
+        ft_error_msg("Error here b\n");
+    else if(!validate_border_lines(map->texture->map))
+          ft_error_msg("error here c\n");
+    else if (!validate_border_columns(map->texture->map))
+          ft_error_msg("error here\n");
+     if(!flood_fill(map->texture->map , x, y, map->texture))
+          ft_error_msg("Error here\n");
 }
 int main(int ac, char **av)
 {
@@ -225,10 +342,7 @@ int main(int ac, char **av)
     check_and_read_error(&parse, av[1]);
     parse_textures(&parse);
     check_validite_map(&parse);
-     int i = 0;
-     while(parse.texture->map[i])
-     {
-         printf("%ld\n", ft_strlen(parse.texture->map[i]));
-         i++;
-     }
+  int i = 0;
+  while(parse.texture->map[i])
+      printf("%s\n", parse.texture->map[i++]);
 }
