@@ -425,7 +425,5 @@ int main(int ac, char **av)
     check_and_read_error(&parse, av[1]);
     parse_textures(&parse);
     check_validite_map(&parse);
-  int i = 0;
-  while(parse.texture->map[i])
-      printf("%s\n", parse.texture->map[i++]);
+    //TODO: Starting Rycasting Tomorrow 
 }
