@@ -71,10 +71,10 @@ int check_file(char *str)
 {
     char *name;
     name = ft_strnstr(str, EXTENSION, ft_strlen(str));
-    
+
     if(str && (str[0] == POINT || !name || ft_strlen(name) != 4))
         return(FALSE);
-    else if(ft_strchr(str, SLASH) && (name && name[0] == POINT))
+    else if(!ft_strchr(str, SLASH) && (name && name[0] == POINT))
         return(FALSE);
     return (TRUE);
 }
