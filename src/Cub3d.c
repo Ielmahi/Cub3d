@@ -14,7 +14,7 @@
 #define ERR_DUP_NORTH "Error: Duplicate North texture path\n"
 #define ERR_DUP_SOUTH "Error: Duplicate South texture path\n"
 #define ERR_DUP_EAST "Error: Duplicate East texture path\n"
-#define ERR_DUP_EAST "Error: Duplicate West texture path\n"
+#define ERR_DUP_WEST "Error: Duplicate West texture path\n"
 #define ERR_DUP_CEILING "Error: Duplicate Ceilling color\n"
 #define ERR_DUP_FLOOR "Error: Duplicate Floor color\n"
 #define ERR_EXTRA_CHAR "Error: Extra characters after color definition\n"
@@ -31,6 +31,8 @@
 #define PLAYER_W 'W'
 #define PLAYER_E 'E'
 //-----------------------//
+
+
 void ft_error_msg(char *msg)
 {
     write(STDERR_FILENO, msg, ft_strlen(msg));
@@ -153,7 +155,7 @@ void    parse_ceiling_color(t_map *map, char **path_start, int i)
     char *comma_pos;
     size_t len;
 
-    if (map->c_color.is_set_c > 2)
+    if (map->c_color.is_set_c >= 1)
         ft_error_msg(ERR_DUP_CEILING);
     *path_start = SkipChar(map->map2D[i]+1, ' ');
     map->c_color.r = parse_color(&path_start, &comma_pos, &len, 0);
@@ -168,14 +170,14 @@ void    parse_floor_color(t_map *map, char **path_start, int i)
     char *comma_pos;
     size_t len;
 
-    if (map->c_color.is_set_f > 2)
+    if (map->f_color.is_set_f >= 1)
         ft_error_msg(ERR_DUP_FLOOR);
     *path_start = SkipChar(map->map2D[i]+1, ' ');
     map->f_color.r = parse_color(&path_start, &comma_pos, &len, 0);
     map->f_color.g = parse_color(&path_start, &comma_pos, &len, 0);
     map->f_color.b = parse_color(&path_start, &comma_pos, &len, 1);
     check_colors(map);
-    map->f_color.is_set_c += 1;
+    map->f_color.is_set_f += 1;
 }
 
 void    we(t_map *map, char *path_start)
@@ -183,7 +185,7 @@ void    we(t_map *map, char *path_start)
     if (map->texture->west == NULL)
             map->texture->west = ft_strdup(path_start);
         else
-            ft_error_msg(ERR_DUP_EAST);
+            ft_error_msg(ERR_DUP_WEST);
 }
 
 void    ea(t_map *map, char *path_start)
@@ -246,7 +248,7 @@ void    parse_textures(t_map *map)
             break;
         map->texture->start++;
     }
-    if(map->texture->start != 6) printf("invalid content"), exit(1);
+    //if(map->texture->start != 6) printf("invalid content"), exit(1);
 }
 
 int get_max_line_length(char **map)
