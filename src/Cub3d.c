@@ -100,6 +100,7 @@ char    *SkipChar(char *str, char skip)
 
 void    check_erros(char *str)
 {
+    //printf("strlen two d array: %zu\n", ft_strlen(str));
     if (ft_strlen(str) < 3)
         ft_error_msg(ERR_INVALID_PATH);
 }
@@ -248,7 +249,7 @@ void    parse_textures(t_map *map)
             break;
         map->texture->start++;
     }
-    //if(map->texture->start != 6) printf("invalid content"), exit(1);
+    if(map->texture->start != 6) printf("invalid content"), exit(1);
 }
 
 int get_max_line_length(char **map)
@@ -273,19 +274,20 @@ int ft_errlen(char **map)
 }
 void pad_line_with_spaces(t_texture *texture, size_t max_lenght, char **map)
 {
-    texture->map = malloc(ft_errlen(map) * sizeof(char*));
+    texture->map = malloc((ft_errlen(map)+1)* sizeof(char*));
     int i = 0;
     size_t len = 0, j = 0;
     while(map[i])
     {
-      j = 0;
+     
         if(max_lenght > ft_strlen(map[i]))
           len = ft_strlen(map[i]) + (max_lenght - ft_strlen(map[i]));
         else len = ft_strlen(map[i]);
-       texture->map[i] = malloc(sizeof(char) * len);
+       texture->map[i] = malloc(sizeof(char) * (len +1));
+        j = 0;
         while(j < len)
         {
-            if(map[i][j])
+            if(j < ft_strlen(map[i]))
                 texture->map[i][j] = map[i][j];
             else
                 texture->map[i][j] = ' ';
@@ -354,11 +356,11 @@ int validate_border_lines(char **map)
 }
 int validate_border_columns(char **map)
 {
-    int i = 0, j = ft_strlen(map[i]) -1;
+    int i = 0, j = ft_strlen(map[i]) - 1;
   while(map[i])
   {
     if((map[i][0] != SPACE && map[i][0] != WALL) || (map[i][j] != SPACE && map[i][j] != WALL))
-        return FALSE;
+                return FALSE;
     i++;
   }
   return TRUE;
@@ -407,13 +409,13 @@ void  check_validite_map(t_map *map)
       int x = map->texture->x_player;
       int y = map->texture->y_player;
     if(!normalize_map(map->texture, map_start))
-        ft_error_msg("error here a\n");
-    else if(!validate_charactere_and_palyer(map->texture->map))
+        ft_error_msg("error here a\n");             
+     else if(!validate_charactere_and_palyer(map->texture->map))
         ft_error_msg("Error here b\n");
     else if(!validate_border_lines(map->texture->map))
           ft_error_msg("error here c\n");
     else if (!validate_border_columns(map->texture->map))
-          ft_error_msg("error here\n");
+          ft_error_msg("error here d\n");
      if(!flood_fill(map->texture->map , x, y, map->texture))
           ft_error_msg("Error here\n");
 }
