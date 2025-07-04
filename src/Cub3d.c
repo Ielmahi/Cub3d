@@ -415,6 +415,38 @@ int flood_fill(char **map, int x, int y, t_texture *texture)
                 flood_fill(map, x, y + 1, texture);
     return valid;
 }
+int check_last_zero(char **map)
+{
+    int i = 0;
+    int j;
+
+    while (map[i])
+    {
+        j = 0;
+        while (map[i][j])
+        {
+            char c = map[i][j];
+            if (c == EMPTY)
+            {
+               if (!map[i + 1] || i == 0 || !map[i - 1])
+                    return FALSE;
+                if (j == 0 || map[i][j + 1] == '\0')
+                    return FALSE;
+                if (map[i + 1][j] != EMPTY && map[i + 1][j] != WALL)
+                    return FALSE;
+                if (map[i - 1][j] != EMPTY && map[i - 1][j] != WALL)
+                    return FALSE;
+                if (map[i][j + 1] != EMPTY && map[i][j + 1] != WALL)
+                    return FALSE;
+                if (map[i][j - 1] != EMPTY && map[i][j - 1] != WALL)
+                    return FALSE;
+            }
+            j++;
+        }
+        i++;
+    }
+    return TRUE;
+}
 void  check_validite_map(t_map *map)
 {
       char **map_start = map->map2D + map->texture->start;
@@ -431,6 +463,9 @@ void  check_validite_map(t_map *map)
           ft_error_msg("error here d\n");
      if(!flood_fill(map->texture->map , x, y, map->texture))
           ft_error_msg("Error here\n");
+    if(!check_last_zero(map->texture->map))
+          ft_error_msg("Error here wal\n");
+      
 }
 int main(int ac, char **av)
 {
