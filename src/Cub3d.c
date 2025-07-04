@@ -70,8 +70,8 @@ void open_and_read_file(char *str, t_map *map)
 int check_file(char *str)
 {
     char *name;
-    name = ft_strnstr(str, EXTENSION, ft_strlen(str));
 
+    name = ft_strnstr(str, EXTENSION, ft_strlen(str));
     if(str && (str[0] == POINT || !name || ft_strlen(name) != 4))
         return(FALSE);
     else if(!ft_strchr(str, SLASH) && (name && name[0] == POINT))
