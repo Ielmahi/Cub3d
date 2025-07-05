@@ -1,38 +1,5 @@
 #include "../includes/cub3d.h"
 
-// ------------------------//
-
-#define ERROR_INVALID_MAP "\033[1;31mError\n:\033[0m Invalid map structure.\n"
-#define ERROR_INVALID_CHARACTERS "\033[1;31mError:\n\033[0m Invalid characters or player count in map.\n"
-#define ERROR_INVALID_BORDER_LINES "\033[1;31mError:\n\033[0m Map border lines are invalid.\n"
-#define ERROR_INVALID_BORDER_COLUMNS "\033[1;31mError:\n\033[0m Map border columns are invalid.\n"
-#define ERROR_FLOOD_FILL_FAIL "\033[1;31mError:\n\033[0m Flood fill failed — map not enclosed properly.\n"
-
-// -------------------------//
-
-#define ERR_EMPTY_PATH "\033[1;31mError: Empty path for texture\n\033[0m"
-#define ERR_DUP_NORTH "\033[1;31mError: Duplicate North texture path\n\033[0m"
-#define ERR_DUP_SOUTH "\033[1;31mError: Duplicate South texture path\n\033[0m"
-#define ERR_DUP_EAST "\033[1;31mError: Duplicate East texture path\n\033[0m"
-#define ERR_DUP_WEST "\033[1;31mError: Duplicate West texture path\n\033[0m"
-#define ERR_DUP_CEILING "\033[1;31mError: Duplicate Ceilling color\n\033[0m"
-#define ERR_DUP_FLOOR "\033[1;31mError: Duplicate Floor color\n\033[0m"
-#define ERR_EXTRA_CHAR "\033[1;31mError: Extra characters after color definition\n\033[0m"
-#define ERR_OUT_OF_RANGE "\033[1;31mError: RGB color values out of range [0-255]\n\033[0m"
-#define ERR_INVALID_PATH "\033[1;31mError: Invalid path to textures\n\033[0m"
-
-
-// ---------------------------//
-
-
-#define WALL '1'
-#define EMPTY '0'
-#define PLAYER_N 'N'
-#define PLAYER_S 'S'
-#define PLAYER_W 'W'
-#define PLAYER_E 'E'
-//-----------------------//
-
 
 void ft_error_msg(char *msg)
 {
@@ -69,13 +36,15 @@ void open_and_read_file(char *str, t_map *map)
 
 int check_file(char *str)
 {
-    char *name;
+    char *extension;
+    char *slash;
 
-    name = ft_strnstr(str, EXTENSION, ft_strlen(str));
-    if(str && (str[0] == POINT || !name || ft_strlen(name) != 4))
+    slash = ft_strrchr(str, SLASH);
+    extension = ft_strnstr(str, EXTENSION, ft_strlen(str));
+    if(str && (str[0] == DOT || !extension || ft_strlen(extension) != 4))
         return(FALSE);
-    else if(!ft_strchr(str, SLASH) && (name && name[0] == POINT))
-        return(FALSE);
+    else if (slash &&  *(slash + 1) == DOT)
+            return (FALSE);
     return (TRUE);
 }
 
@@ -462,9 +431,9 @@ void  check_validite_map(t_map *map)
     else if (!validate_border_columns(map->texture->map))
           ft_error_msg("error here d\n");
      if(!flood_fill(map->texture->map , x, y, map->texture))
-          ft_error_msg("Error here\n");
+          ft_error_msg("Error here boxee\n");
     if(!check_last_zero(map->texture->map))
-          ft_error_msg("Error here wal\n");
+          ft_error_msg("Error here wal ilias\n");
       
 }
 int main(int ac, char **av)
