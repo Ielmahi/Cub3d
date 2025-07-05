@@ -56,7 +56,7 @@ void check_and_read_error(t_map *parse, char *str)
     open_and_read_file(str, parse);
 }
 
-char    *SkipChar(char *str, char skip)
+char    *skip_char(char *str, char skip)
 {
     while(*str)
     {
@@ -93,19 +93,19 @@ void    check_colors(t_map *map)
 
 int parse_color(char ***path_start, char **comma_pos, size_t *len, int is_last)
 {
-    char *r_str;
+    char *rgb_str;
     
     *comma_pos = ft_strchr(**path_start, ',');
     if (*comma_pos == NULL)
     {
         *len = ft_strlen(**path_start);
-        r_str = ft_strndup(**path_start, *len);
+        rgb_str = ft_strndup(**path_start, *len);
         **path_start = **path_start + *len;
     }
     else
     {
         *len = *comma_pos - **path_start;
-        r_str = ft_strndup(**path_start, *len);
+        rgb_str = ft_strndup(**path_start, *len);
         if (is_last)
         {
             **path_start = **path_start + *len;
@@ -113,9 +113,9 @@ int parse_color(char ***path_start, char **comma_pos, size_t *len, int is_last)
                 ft_error_msg(ERR_EXTRA_CHAR);
         }
         else
-            **path_start = SkipChar(**path_start + *len, ',');
+            **path_start = skip_char(**path_start + *len, ',');
     }
-    return (ft_atoi(r_str));
+    return (ft_atoi(rgb_str));
 }
 
 
@@ -126,7 +126,7 @@ void    parse_ceiling_color(t_map *map, char **path_start, int i)
 
     if (map->c_color.is_set_c >= 1)
         ft_error_msg(ERR_DUP_CEILING);
-    *path_start = SkipChar(map->map2D[i]+1, ' ');
+    *path_start = skip_char(map->map2D[i]+1, ' ');
     map->c_color.r = parse_color(&path_start, &comma_pos, &len, 0);
     map->c_color.g = parse_color(&path_start, &comma_pos, &len, 0);
     map->c_color.b = parse_color(&path_start, &comma_pos, &len, 1);
@@ -141,7 +141,7 @@ void    parse_floor_color(t_map *map, char **path_start, int i)
 
     if (map->f_color.is_set_f >= 1)
         ft_error_msg(ERR_DUP_FLOOR);
-    *path_start = SkipChar(map->map2D[i]+1, ' ');
+    *path_start = skip_char(map->map2D[i]+1, ' ');
     map->f_color.r = parse_color(&path_start, &comma_pos, &len, 0);
     map->f_color.g = parse_color(&path_start, &comma_pos, &len, 0);
     map->f_color.b = parse_color(&path_start, &comma_pos, &len, 1);
@@ -225,7 +225,7 @@ void    parse_textures(t_map *map)
     while(map->map2D[++i])
     {
         check_erros(map->map2D[i]);
-        path_start = SkipChar(map->map2D[i]+2, SPACE);
+        path_start = skip_char(map->map2D[i]+2, SPACE);
             if(!*path_start) ft_error_msg(ERR_EMPTY_PATH);
         if (!check_textures_and_colors(map, i, path_start))
             break;
