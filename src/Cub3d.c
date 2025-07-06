@@ -423,17 +423,17 @@ void  check_validite_map(t_map *map)
       int x = map->texture->x_player;
       int y = map->texture->y_player;
     if(!normalize_map(map->texture, map_start))
-        ft_error_msg("error here a\n");             
+        ft_error_msg(ERROR_INVALID_MAP);             
      else if(!validate_charactere_and_palyer(map->texture->map))
-        ft_error_msg("Error here b\n");
+        ft_error_msg(ERROR_INVALID_CHARACTERS);
     else if(!validate_border_lines(map->texture->map))
-          ft_error_msg("error here c\n");
+          ft_error_msg(ERROR_INVALID_BORDER_LINES);
     else if (!validate_border_columns(map->texture->map))
-          ft_error_msg("error here d\n");
+          ft_error_msg(ERROR_INVALID_BORDER_COLUMNS);
      if(!flood_fill(map->texture->map , x, y, map->texture))
-          ft_error_msg("Error here boxee\n");
+          ft_error_msg(ERROR_FLOOD_FILL_FAIL);
     if(!check_last_zero(map->texture->map))
-          ft_error_msg("Error here wal ilias\n");
+          ft_error_msg(ERROR_INVALID_CHARACTERS);
       
 }
 int main(int ac, char **av)

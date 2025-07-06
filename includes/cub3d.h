@@ -8,11 +8,10 @@
 #include <stdbool.h>
 
 
-#define ERROR_INVALID_MAP "\033[1;31mError\n:\033[0m Invalid map structure.\n"
-#define ERROR_INVALID_CHARACTERS "\033[1;31mError:\n\033[0m Invalid characters or player count in map.\n"
-#define ERROR_INVALID_BORDER_LINES "\033[1;31mError:\n\033[0m Map border lines are invalid.\n"
-#define ERROR_INVALID_BORDER_COLUMNS "\033[1;31mError:\n\033[0m Map border columns are invalid.\n"
-#define ERROR_FLOOD_FILL_FAIL "\033[1;31mError:\n\033[0m Flood fill failed — map not enclosed properly.\n"
+#define ERROR_INVALID_MAP "\033[1;31mError\n: Invalid map structure.\033[0m \n"
+#define ERROR_INVALID_BORDER_LINES "\033[1;31mError:\n Map border lines are invalid.\033[0m \n"
+#define ERROR_INVALID_BORDER_COLUMNS "\033[1;31mError:\n Map border columns are invalid.\033[0m\n"
+#define ERROR_FLOOD_FILL_FAIL "\033[1;31mError:\n Flood fill failed — map not enclosed properly.\033[0m\n"
 #define ERR_EMPTY_PATH "\033[1;31mError: Empty path for texture\n\033[0m"
 #define ERR_DUP_NORTH "\033[1;31mError: Duplicate North texture path\n\033[0m"
 #define ERR_DUP_SOUTH "\033[1;31mError: Duplicate South texture path\n\033[0m"
@@ -23,12 +22,7 @@
 #define ERR_EXTRA_CHAR "\033[1;31mError: Extra characters after color definition\n\033[0m"
 #define ERR_OUT_OF_RANGE "\033[1;31mError: RGB color values out of range [0-255]\n\033[0m"
 #define ERR_INVALID_PATH "\033[1;31mError: Invalid path to textures\n\033[0m"
-#define ERROR_INVALID_MAP "\033[1;31mError\n:\033[0m Invalid map structure.\n"
-#define ERROR_INVALID_CHARACTERS "\033[1;31mError:\n\033[0m Invalid characters or player count in map.\n"
-#define ERROR_INVALID_BORDER_LINES "\033[1;31mError:\n\033[0m Map border lines are invalid.\n"
-#define ERROR_INVALID_BORDER_COLUMNS "\033[1;31mError:\n\033[0m Map border columns are invalid.\n"
-#define ERROR_FLOOD_FILL_FAIL "\033[1;31mError:\n\033[0m Flood fill failed — map not enclosed properly.\n"
-
+#define ERROR_INVALID_CHARACTERS "\033[1;31mError:\n Invalid characters or player count in map.\033[0m\n"
 
 #define INVALID_ARGS "\033[0;31mError\nInvalid Arguments\n\033[0m"
 #define INVALID_FILE "\033[0;31mError\nInvalid File\n\033[0m"
