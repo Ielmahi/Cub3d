@@ -1,6 +1,7 @@
 NAME = cub3D
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
+HR = includes/cub3d.h
 
 GREEN = \033[0;32m
 ORANGE = \033[0;33m
@@ -22,7 +23,7 @@ $(NAME): $(OBJ) $(LIBFT)
 	@$(CC) $(CFLAGS) $(OBJ) $(LIBFT) -o $(NAME)
 	@echo "$(GREEN)Execution$(RESET)"
 
-%.o: %.c
+%.o: %.c $(HR)
 	@$(CC) $(CFLAGS) -I./includes -I$(LIBFT_DIR) -c $< -o $@
 
 clean:
