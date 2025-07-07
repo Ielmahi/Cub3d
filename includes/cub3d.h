@@ -28,6 +28,7 @@
 #define INVALID_FILE "\033[0;31mError\nInvalid File\n\033[0m"
 #define OPEN_FILE_ERROR "\033[0;31mError\nCannot Open FILE\n\033[0m"
 #define INVALID_MAP "\033[0;31mError\nInvalid Map\n\033[0m"
+#define INVALID_ORDER "\033[0;31mError\nInvalid Order\n\033[0m"
 
 
 

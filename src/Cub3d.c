@@ -231,7 +231,8 @@ void    parse_textures(t_map *map)
             break;
         map->texture->start++;
     }
-    if(map->texture->start != 6) printf("invalid content"), exit(1);
+    if(map->texture->start != 6)
+        ft_error_msg(INVALID_ORDER);
 }
 
 int get_max_line_length(char **map)
