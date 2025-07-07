@@ -437,6 +437,7 @@ void  check_validite_map(t_map *map)
           ft_error_msg(ERROR_INVALID_CHARACTERS);
       
 }
+
 int main(int ac, char **av)
 {
     t_map parse;
