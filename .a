@@ -1,0 +1,97 @@
+#include <unistd.h>
+#include <stdio.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavutil/imgutils.h>
+#include <libavutil/samplefmt.h>
+#include <libavutil/timestamp.h>
+#include <libswscale/swscale.h>
+#include <SDL2/SDL.h>
+#define PATH "/root/Cub3d/test_vedio/test.mp4"
+int main() {
+    AVFormatContext *info_file = NULL;
+    AVCodec *codec;
+    AVCodecContext *dec_ctx;
+    SDL_Window *w;
+    SDL_Renderer *renderer;
+    SDL_Texture *texture;
+    AVPacket *pack;
+    AVFrame *frame = av_frame_alloc();
+    AVFrame *rgb_frame = av_frame_alloc();
+    struct SwsContext *sws_ctx;
+
+    if (avformat_open_input(&info_file, PATH, NULL, NULL) < 0)
+        return 1;
+    if (avformat_find_stream_info(info_file, NULL) < 0)
+        return 1;
+
+    int video_stream_index = -1;
+    for (int i = 0; i < info_file->nb_streams; i++) {
+        if (info_file->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+            video_stream_index = i;
+            break;
+        }
+    }
+    if (video_stream_index == -1) return 1;
+
+    codec = avcodec_find_decoder(info_file->streams[video_stream_index]->codecpar->codec_id);
+    if (!codec) return 1;
+
+    dec_ctx = avcodec_alloc_context3(codec);
+    if (!dec_ctx) return 1;
+
+    if (avcodec_parameters_to_context(dec_ctx, info_file->streams[video_stream_index]->codecpar) < 0)
+        return 1;
+
+    if (avcodec_open2(dec_ctx, codec, NULL) < 0)
+        return 1;
+
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) return 1;
+
+    w = SDL_CreateWindow("Hi", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, dec_ctx->width, dec_ctx->height, SDL_WINDOW_SHOWN);
+    if (!w) return 1;
+
+    renderer = SDL_CreateRenderer(w, -1, 0);
+    if (!renderer) return 1;
+
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, dec_ctx->width, dec_ctx->height);
+    if (!texture) return 1;
+
+    int num_bytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24, dec_ctx->width, dec_ctx->height, 1);
+    uint8_t *buffer = (uint8_t *)av_malloc(num_bytes * sizeof(uint8_t));
+    av_image_fill_arrays(rgb_frame->data, rgb_frame->linesize, buffer, AV_PIX_FMT_RGB24, dec_ctx->width, dec_ctx->height, 1);
+
+    sws_ctx = sws_getContext(dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt,
+                             dec_ctx->width, dec_ctx->height, AV_PIX_FMT_RGB24,
+                             SWS_BILINEAR, NULL, NULL, NULL);
+    if (!sws_ctx) return 1;
+
+    pack = av_packet_alloc();
+    if (!pack) return 1;
+
+    while (av_read_frame(info_file, pack) >= 0) {
+        if (pack->stream_index == video_stream_index) {
+            if (avcodec_send_packet(dec_ctx, pack) == 0) {
+                while (avcodec_receive_frame(dec_ctx, frame) == 0) {
+                    sws_scale(sws_ctx,
+                              (const uint8_t * const *)frame->data, frame->linesize,
+                              0, dec_ctx->height,
+                              rgb_frame->data, rgb_frame->linesize);
+
+                    // Update SDL texture with rgb_frame data
+                    SDL_UpdateTexture(texture, NULL, rgb_frame->data[0], rgb_frame->linesize[0]);
+                    SDL_RenderClear(renderer);
+                    SDL_RenderCopy(renderer, texture, NULL, NULL);
+                    SDL_RenderPresent(renderer);
+                    SDL_Delay(30); // simple frame delay
+                }
+            }
+        }
+        av_packet_unref(pack);
+    }
+
+    // Cleanup omitted for brevity
+
+    return 0;
+}
+
