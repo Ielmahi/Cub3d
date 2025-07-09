@@ -11,11 +11,16 @@
 #define PATH "/root/Cub3d/test_vedio/test.mp4"
 int main()
 {
+//==========================================================================
     AVFormatContext *info_file;
     AVCodec *codec;
     SDL_Window *w;
     AVPacket *pack;
+    SDL_Renderer render; 
     AVFrame *frame = av_frame_alloc(), *rgb_frame = av_frame_alloc();
+    int num_bytes;int num_bytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24, dec_ctx->width, dec_ctx->height, 1);
+
+//=====================================================================
     info_file = NULL;
     if (avformat_open_input(&info_file, PATH, NULL, NULL) < 0)
         return (1);
@@ -35,6 +40,11 @@ int main()
                     1600,
                     1200,
                     SDL_WINDOW_SHOWN);
+      render = SDL_CreaterRendrer(w, -1, SDL_RENDERER_ACCELERATED);
+      //RGB-> R 1 G 1 B 1 ---> 3bytes
+      SDL_Texture *texture =  SDL_CreateTexture(render, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, dec_ctx->width, dec_ctx->hieght);
+       num_bytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24, dec_ctx->width, dec_ctx->height, 1);
+      if(!render) return 1;
       pack = av_packet_alloc();
     if(!pack) return 1;
     while(!(av_read_frame(info_file, pack) < 0))
