@@ -448,5 +448,6 @@ int main(int ac, char **av)
     check_and_read_error(&parse, av[1]);
     parse_textures(&parse);
     check_validite_map(&parse);
+    printf("hehh;")
     //TODO: Starting Rycasting Tomorrow 
 }
